@@ -17,11 +17,19 @@ public class App extends PApplet {
     boolean imgFalling = true;
     int count = 0;
     float circleRadius = 25;
-    PImage img;
+    PImage imgPoison;
     float imgX;
     float imgY;
-    float speed3 = 9;
+    float speedimg = 9;
     boolean gameActive = true;
+    int scene = 0; // 0 = Start Scene, 1 = Game Scene, 2 = Game Over Scene
+    float playX1 = 360; // Left point
+    float playY1 = 350;
+    float playX2 = 360; // Bottom point
+    float playY2 = 250;
+    float playX3 = 440; // Right point
+    float playY3 = 300;
+
 
     public static void main(String[] args) {
         PApplet.main("App");
@@ -39,9 +47,9 @@ public class App extends PApplet {
         rightY = height - 100;
         circleY = 0;
         circleX = width / 2;
-        img = loadImage("test.png");
+        imgPoison = loadImage("test.png");
         imgY = 0;
-        imgX = random(0, width - img.width);
+        imgX = random(0, width - imgPoison.width);
 
     }
 
@@ -51,9 +59,13 @@ public class App extends PApplet {
     }
 
     public void draw() {
-        if (gameActive) {
+        if (scene ==0){
+            StartScreen();
+        }
+
+        if (scene == 1) {
             background(bgColor);
-            image(img, imgX, imgY, 55, 55);
+            image(imgPoison, imgX, imgY, 55, 55);
             fill(0);
             textSize(20);
             text("Collect the ice cream scoops and avoid the poison!", 20, 40);
@@ -82,26 +94,29 @@ public class App extends PApplet {
 
                 }
 
-                imgY += speed3;
+                imgY += speedimg;
                 if (imgY > height) {
                     ResetImg();
                 }
 
                 if (imgTouchesTriangle(imgX, imgY)) {
                     println("Game Over!");
-                    gameActive = false; // Stop the game
+                    scene = 2; // Stop the game
                 }
             }
 
             fill(0);
             textSize(20);
             text("Scoops collected:" + count, 20, 70);
-        } else {
+        } else if(scene == 2){
+            background(bgColor);
             fill(255, 0, 0);
             textSize(40);
             text("Game Over!", width / 2 - 100, height / 2);
             fill(14, 2, 2);
             text("Press space to play again", 200, 400);
+
+        }else if(scene == 0){
 
         }
     }
@@ -142,12 +157,45 @@ public class App extends PApplet {
             leftX += speedtriangle;
             rightX += speedtriangle;
 
-        }else if (key == ' '){
+        }else if (key == ' ' && scene == 2){
             ResetGame();
+        }
+        else if(key == 'p'){
+            scene++;
         }
     }
     public void ResetGame(){
-        gameActive = true;
+        scene = 1;
             ResetImg();
+            count=0;
+    }
+    public void StartScreen(){
+        textSize(60);
+        textAlign(CENTER, TOP);
+        text("Welcome to Scoop Survival!", width / 2, 20);
+        fill(0,0,102);
+        triangle(playX1, playY1, playX2, playY2, playX3, playY3);
+        textSize(50);
+        textAlign(CENTER, CENTER);
+        fill(0,0,101);
+        text("Play", (playX1 + playX3) / 2, playY1 + 30);
+        textAlign(LEFT, LEFT);
+    }
+    public void mousePressed() {
+        if (scene == 0 && mouseInButton()) {
+            scene = 1; // Start the game when play button is clicked
+        }
+    }
+    boolean mouseInButton () {
+        if(get(mouseX, mouseY) == color(0,0,102)){
+            System.out.println("you found the color");
+            return true;
+        }
+        return false;
+        
     }
 }
+   
+    
+
+
