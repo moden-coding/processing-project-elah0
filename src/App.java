@@ -2,6 +2,7 @@ import processing.core.*;
 
 public class App extends PApplet {
     int bgColor;
+    //create ice cream cone
     float tipX;
     float tipY;
     float leftX;
@@ -9,9 +10,10 @@ public class App extends PApplet {
     float rightX;
     float rightY;
     float speedtriangle = 35;
+    //create scoops
     float circleY;
     float circleX;
-    float speedcircle = 6;
+    float speedcircle = 7;
     float r, g, b;
     boolean circleFalling = true;
     boolean imgFalling = true;
@@ -20,15 +22,21 @@ public class App extends PApplet {
     PImage imgPoison;
     float imgX;
     float imgY;
-    float speedimg = 9;
+    float speedimg = 10;
     boolean gameActive = true;
     int scene = 0; // 0 = Start Scene, 1 = Game Scene, 2 = Game Over Scene
+    //coordintes for play button
     float playX1 = 360; // Left point
     float playY1 = 350;
     float playX2 = 360; // Bottom point
     float playY2 = 250;
     float playX3 = 440; // Right point
     float playY3 = 300;
+    int highScore = 0; //assign high score variable 
+    PImage IceCreamImg;
+    PImage SadFace;
+    PImage star;
+    
 
 
     public static void main(String[] args) {
@@ -36,7 +44,7 @@ public class App extends PApplet {
     }
 
     public void setup() {
-        bgColor = color(102, 178, 255);
+        bgColor = color(102, 178, 255); //create background color
         background(bgColor);
         ResetCircle();
         tipX = width / 2;
@@ -47,31 +55,35 @@ public class App extends PApplet {
         rightY = height - 100;
         circleY = 0;
         circleX = width / 2;
-        imgPoison = loadImage("test.png");
+        imgPoison = loadImage("PotionDeath.png"); //load posion image
         imgY = 0;
         imgX = random(0, width - imgPoison.width);
+        IceCreamImg = loadImage("iceCream.png"); //load ice cream image
+        SadFace = loadImage("sadFace.png"); //load sad face image 
+        star= loadImage("star.png"); //load star image 
 
     }
 
     public void settings() {
-        size(800, 600);
+        size(800, 600); //set the size of screen
 
     }
 
     public void draw() {
         if (scene ==0){
-            StartScreen();
+            StartScreen(); //call the start screen method which display a play button for users
         }
 
         if (scene == 1) {
             background(bgColor);
-            image(imgPoison, imgX, imgY, 55, 55);
+            image(imgPoison, imgX, imgY, 92, 92);
             fill(0);
             textSize(20);
             text("Collect the ice cream scoops and avoid the poison!", 20, 40);
             fill(174, 124, 75);
             triangle(leftX, leftY, rightX, rightY, tipX, tipY);
 
+            
             if (circleFalling) {
                 fill(r, g, b);
                 ellipse(circleX, circleY, 50, 50);
@@ -87,6 +99,7 @@ public class App extends PApplet {
                     ResetCircle();
 
                 }
+                //Detect if the cone and scoop collide
                 if (circleTouchesTriangle(circleX, circleY)) {
                     circleFalling = false; // Stop the circle from falling
                     ResetCircle(); // Reset the circle to a new random position
@@ -98,7 +111,7 @@ public class App extends PApplet {
                 if (imgY > height) {
                     ResetImg();
                 }
-
+                //Detect if poison and cone collide
                 if (imgTouchesTriangle(imgX, imgY)) {
                     println("Game Over!");
                     scene = 2; // Stop the game
@@ -108,20 +121,18 @@ public class App extends PApplet {
             fill(0);
             textSize(20);
             text("Scoops collected:" + count, 20, 70);
+            text("High Score: " + highScore, 20, 100);
         } else if(scene == 2){
-            background(bgColor);
-            fill(255, 0, 0);
-            textSize(40);
-            text("Game Over!", width / 2 - 100, height / 2);
-            fill(14, 2, 2);
-            text("Press space to play again", 200, 400);
+            EndScreen();
 
         }else if(scene == 0){
 
         }
+        Highscore();
     }
 
     public void ResetCircle() {
+        //reset scoop at a new random location
         circleX = random(0, width);
         circleY = 0;
         circleFalling = true;
@@ -131,6 +142,7 @@ public class App extends PApplet {
     }
 
     public void ResetImg() {
+        //rests poison at a new random location 
         imgX = random(0, width);
         imgY = 0;
         imgFalling = true;
@@ -148,21 +160,22 @@ public class App extends PApplet {
     }
 
     public void keyPressed() {
+        //Have arrow keys move the cone
         if (keyCode == LEFT) {
+            if (0 < leftX && leftX < 800){
             tipX -= speedtriangle; // Move rectangle left
             leftX -= speedtriangle;
-            rightX -= speedtriangle;
+            rightX -= speedtriangle;}
         } else if (keyCode == RIGHT) {
+            if (0< rightX && rightX < 800){
             tipX += speedtriangle; // Move rectangle right
             leftX += speedtriangle;
-            rightX += speedtriangle;
+            rightX += speedtriangle;}
 
         }else if (key == ' ' && scene == 2){
             ResetGame();
         }
-        else if(key == 'p'){
-            scene++;
-        }
+       
     }
     public void ResetGame(){
         scene = 1;
@@ -180,6 +193,12 @@ public class App extends PApplet {
         fill(0,0,101);
         text("Play", (playX1 + playX3) / 2, playY1 + 30);
         textAlign(LEFT, LEFT);
+        image(IceCreamImg, playX1 - 200, playY1 - 170, 170, 410); 
+        image(IceCreamImg, playX3 + 50, playY3 - 120, 170, 410);
+        fill(0);
+        textSize(18);
+        text("Collect the ice cream scoops and avoid the poison using the arrow keys to move!", 110, 150);
+        CreateStars();
     }
     public void mousePressed() {
         if (scene == 0 && mouseInButton()) {
@@ -187,6 +206,7 @@ public class App extends PApplet {
         }
     }
     boolean mouseInButton () {
+        //Detect if the play button is clicked by checking the color
         if(get(mouseX, mouseY) == color(0,0,102)){
             System.out.println("you found the color");
             return true;
@@ -194,7 +214,43 @@ public class App extends PApplet {
         return false;
         
     }
+    public void Highscore(){
+        if (scene == 2) {  // losing Scene
+            if (count > highScore) {
+                highScore = count; // Update high score if the current score is higher
+            }
+    }
 }
+    public void CreateStars(){
+        //Make stars on start screen
+        image(star, 40, 200, 100, 100);
+        image(star, 40, 280, 100, 100);
+        image(star, 40, 360, 100, 100);
+        image(star, 40, 360, 100, 100);
+        image(star, 40, 440, 100, 100);
+        
+        image(star, 650, 200, 100, 100);
+        image(star, 650, 280, 100, 100);
+        image(star, 650, 360, 100, 100);
+        image(star, 650, 440, 100, 100);
+    }
+    public void EndScreen(){
+        background(bgColor);
+            image(SadFace, 290, 50, 220, 190);
+            fill(255, 0, 0);
+            textSize(60);
+            text("Game Over!", 250, 300);
+            fill(14, 2, 2);
+            textSize(40);
+            text("Press space to play again", 200, 500);
+            textSize(30);
+            fill(255, 255, 255);
+            
+            text("Your Score: " + count, 325, 455); // Display the score of the current game
+            text("High Score: " + highScore, 325, 405); // Display the high score
+        }
+    }
+
    
     
 
